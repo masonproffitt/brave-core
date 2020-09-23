@@ -27,6 +27,7 @@
 #include "bat/ads/internal/ads_client_mock.h"
 #include "bat/ads/internal/time_util.h"
 #include "bat/ads/internal/url_util.h"
+#include "bat/ads/pref_names.h"
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -37,6 +38,8 @@ namespace ads {
 namespace {
 
 static std::map<std::string, uint16_t> indexes;
+
+static std::map<std::string, std::string> prefs;
 
 const char kNowTagValue[] = "now";
 const char kDistantPastTagValue[] = "distant_past";
@@ -150,6 +153,15 @@ void ParseAndReplaceTags(
   }
 }
 
+std::string GetPrefPath(
+    const std::string& path) {
+  const ::testing::TestInfo* const test_info =
+      ::testing::UnitTest::GetInstance()->current_test_info();
+
+  return base::StringPrintf("%s:%s.%s", path.c_str(),
+      test_info->test_suite_name(), test_info->name());
+}
+
 bool GetNextEndpointResponse(
     const std::string& url,
     const URLEndpoints& endpoints,
@@ -189,15 +201,191 @@ bool GetNextEndpointResponse(
   }
 
   if (index == endpoint_responses.size()) {
-    // Failed as there are no more mocked responses for this endpoint
+    // Fail as there are no more mocked responses for this endpoint
     return false;
   }
 
   *endpoint_response = endpoint_responses.at(index);
 
-  indexes_iter->second++;
+  if (indexes_iter != indexes.end()) {
+    indexes_iter->second++;
+  }
 
   return true;
+}
+
+void MockGetBooleanPref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, GetBooleanPref(_))
+      .WillByDefault(Invoke([](
+          const std::string& path) -> bool {
+        const std::string pref_path = GetPrefPath(path);
+        const std::string value = prefs[pref_path];
+
+        DCHECK(!value.empty());
+
+        int value_as_int;
+        base::StringToInt(value, &value_as_int);
+        return static_cast<bool>(value_as_int);
+      }));
+}
+
+void MockSetBooleanPref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, SetBooleanPref(_, _))
+      .WillByDefault(Invoke([](
+          const std::string& path,
+          const bool value) {
+        const std::string pref_path = GetPrefPath(path);
+        prefs[pref_path] = base::NumberToString(static_cast<int>(value));
+      }));
+}
+
+void MockGetIntegerPref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, GetIntegerPref(_))
+      .WillByDefault(Invoke([](
+          const std::string& path) -> int {
+        const std::string pref_path = GetPrefPath(path);
+        const std::string value = prefs[pref_path];
+        DCHECK(!value.empty());
+
+        int value_as_int;
+        base::StringToInt(value, &value_as_int);
+        return value_as_int;
+      }));
+}
+
+void MockSetIntegerPref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, SetIntegerPref(_, _))
+      .WillByDefault(Invoke([](
+          const std::string& path,
+          const int value) {
+        const std::string pref_path = GetPrefPath(path);
+        prefs[pref_path] = base::NumberToString(value);
+      }));
+}
+
+void MockGetDoublePref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, GetDoublePref(_))
+      .WillByDefault(Invoke([](
+          const std::string& path) -> double {
+        const std::string pref_path = GetPrefPath(path);
+        const std::string value = prefs[pref_path];
+        DCHECK(!value.empty());
+
+        double value_as_double;
+        base::StringToDouble(value, &value_as_double);
+        return value_as_double;
+      }));
+}
+
+void MockSetDoublePref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, SetDoublePref(_, _))
+      .WillByDefault(Invoke([](
+          const std::string& path,
+          const double value) {
+        const std::string pref_path = GetPrefPath(path);
+        prefs[pref_path] = base::NumberToString(value);
+      }));
+}
+
+void MockGetStringPref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, GetStringPref(_))
+      .WillByDefault(Invoke([](
+          const std::string& path) -> std::string {
+        const std::string pref_path = GetPrefPath(path);
+        const std::string value = prefs[pref_path];
+        return value;
+      }));
+}
+
+void MockSetStringPref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, SetStringPref(_, _))
+      .WillByDefault(Invoke([](
+          const std::string& path,
+          const std::string& value) {
+        const std::string pref_path = GetPrefPath(path);
+        prefs[pref_path] = value;
+      }));
+}
+
+void MockGetInt64Pref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, GetInt64Pref(_))
+      .WillByDefault(Invoke([](
+          const std::string& path) -> int64_t {
+        const std::string pref_path = GetPrefPath(path);
+        const std::string value = prefs[pref_path];
+        DCHECK(!value.empty());
+
+        int64_t value_as_int64;
+        base::StringToInt64(value, &value_as_int64);
+        return value_as_int64;
+      }));
+}
+
+void MockSetInt64Pref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, SetInt64Pref(_, _))
+      .WillByDefault(Invoke([](
+          const std::string& path,
+          const int64_t value) {
+        const std::string pref_path = GetPrefPath(path);
+        prefs[pref_path] = base::NumberToString(value);
+      }));
+}
+
+void MockGetUint64Pref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, GetUint64Pref(_))
+      .WillByDefault(Invoke([](
+          const std::string& path) -> uint64_t {
+        const std::string pref_path = GetPrefPath(path);
+        const std::string value = prefs[pref_path];
+        DCHECK(!value.empty());
+
+        uint64_t value_as_uint64;
+        base::StringToUint64(value, &value_as_uint64);
+        return value_as_uint64;
+      }));
+}
+
+void MockSetUint64Pref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, SetUint64Pref(_, _))
+      .WillByDefault(Invoke([](
+          const std::string& path,
+          const uint64_t value) {
+        const std::string pref_path = GetPrefPath(path);
+        prefs[pref_path] = base::NumberToString(value);
+      }));
+}
+
+void MockClearPref(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  ON_CALL(*mock, ClearPref(_))
+      .WillByDefault(Invoke([](
+          const std::string& path) {
+        prefs.erase(path);
+      }));
+}
+
+void MockDefaultPrefs(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  mock->SetUint64Pref(prefs::kAdsPerDay, 20);
+  mock->SetUint64Pref(prefs::kAdsPerHour, 2);
+  mock->SetBooleanPref(prefs::kEnabled, true);
+  mock->SetBooleanPref(prefs::kShouldAllowAdConversionTracking, true);
+  mock->SetBooleanPref(prefs::kShouldAllowAdsSubdivisionTargeting, false);
+  mock->SetStringPref(prefs::kAdsSubdivisionTargetingCode, "AUTO");
+  mock->SetStringPref(prefs::kAutoDetectedAdsSubdivisionTargetingCode, "");
+  mock->SetIntegerPref(prefs::kIdleThreshold, 15);
 }
 
 }  // namespace
@@ -415,6 +603,31 @@ void MockRunDBTransaction(
 
         callback(std::move(response));
       }));
+}
+
+void MockPrefs(
+    const std::unique_ptr<AdsClientMock>& mock) {
+  MockGetBooleanPref(mock);
+  MockSetBooleanPref(mock);
+
+  MockGetIntegerPref(mock);
+  MockSetIntegerPref(mock);
+
+  MockGetDoublePref(mock);
+  MockSetDoublePref(mock);
+
+  MockGetStringPref(mock);
+  MockSetStringPref(mock);
+
+  MockGetInt64Pref(mock);
+  MockSetInt64Pref(mock);
+
+  MockGetUint64Pref(mock);
+  MockSetUint64Pref(mock);
+
+  MockClearPref(mock);
+
+  MockDefaultPrefs(mock);
 }
 
 int64_t DistantPast() {

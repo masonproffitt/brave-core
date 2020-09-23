@@ -1,12 +1,12 @@
-/* Copyright (c) 2019 The Brave Authors. All rights reserved.
+/* Copyright (c) 2020 The Brave Authors. All rights reserved.
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef BRAVE_COMPONENTS_BRAVE_ADS_COMMON_PREF_NAMES_H_
-#define BRAVE_COMPONENTS_BRAVE_ADS_COMMON_PREF_NAMES_H_
+#ifndef BAT_ADS_PREF_NAMES_H_
+#define BAT_ADS_PREF_NAMES_H_
 
-namespace brave_ads {
+namespace ads {
 
 namespace prefs {
 
@@ -19,7 +19,7 @@ extern const char kAdsPerDay[];
 
 extern const char kShouldAllowAdsSubdivisionTargeting[];
 extern const char kAdsSubdivisionTargetingCode[];
-extern const char kAutomaticallyDetectedAdsSubdivisionTargetingCode[];
+extern const char kAutoDetectedAdsSubdivisionTargetingCode[];
 
 extern const char kAdsWereDisabled[];
 extern const char kHasAdsP3AState[];
@@ -42,6 +42,6 @@ extern const char kAdViewConfirmationCountPrefName[];
 
 }  // namespace prefs
 
-}  // namespace brave_ads
+}  // namespace ads
 
-#endif  // BRAVE_COMPONENTS_BRAVE_ADS_COMMON_PREF_NAMES_H_
+#endif  // BAT_ADS_PREF_NAMES_H_

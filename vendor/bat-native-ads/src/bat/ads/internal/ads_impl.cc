@@ -58,6 +58,7 @@
 #include "bat/ads/internal/string_util.h"
 #include "bat/ads/internal/time_util.h"
 #include "bat/ads/internal/url_util.h"
+#include "bat/ads/pref_names.h"
 
 #if defined(OS_ANDROID)
 #include "base/android/build_info.h"
@@ -207,7 +208,7 @@ void AdsImpl::InitializeStep6(
 
   is_foreground_ = ads_client_->IsForeground();
 
-  ads_client_->SetIdleThreshold(kIdleThresholdInSeconds);
+  ads_client_->SetIntegerPref(prefs::kIdleThreshold, kIdleThresholdInSeconds);
 
   callback(SUCCESS);
 
@@ -277,7 +278,7 @@ void AdsImpl::RemoveAllAdNotificationsAfterUpdate() {
 #endif
 
 bool AdsImpl::IsInitialized() {
-  if (!is_initialized_ || !ads_client_->IsEnabled()) {
+  if (!is_initialized_ || !ads_client_->GetBooleanPref(prefs::kEnabled)) {
     return false;
   }
 
@@ -871,8 +872,8 @@ void AdsImpl::ServeAdNotificationWithPacing(
 
 void AdsImpl::SuccessfullyServedAd() {
   if (PlatformHelper::GetInstance()->IsMobile()) {
-    StartDeliveringAdNotificationsAfterSeconds(
-        base::Time::kSecondsPerHour / ads_client_->GetAdsPerHour());
+    StartDeliveringAdNotificationsAfterSeconds(base::Time::kSecondsPerHour /
+        ads_client_->GetUint64Pref(prefs::kAdsPerHour));
   }
 }
 

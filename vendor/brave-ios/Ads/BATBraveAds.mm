@@ -38,7 +38,7 @@ static NSString * const kNumberOfAdsPerDayKey = @"BATNumberOfAdsPerDay";
 static NSString * const kNumberOfAdsPerHourKey = @"BATNumberOfAdsPerHour";
 static NSString * const kShouldAllowAdsSubdivisionTargetingPrefKey = @"BATShouldAllowAdsSubdivisionTargetingPrefKey";
 static NSString * const kAdsSubdivisionTargetingCodePrefKey = @"BATAdsSubdivisionTargetingCodePrefKey";
-static NSString * const kAutomaticallyDetectedAdsSubdivisionTargetingCodePrefKey = @"BATAutomaticallyDetectedAdsSubdivisionTargetingCodePrefKey";
+static NSString * const kAutoDetectedAdsSubdivisionTargetingCodePrefKey = @"BATAutoDetectedAdsSubdivisionTargetingCodePrefKey";
 static NSString * const kUserModelMetadataPrefKey = @"BATUserModelMetadata";
 
 @interface BATAdNotification ()
@@ -294,14 +294,14 @@ BATClassAdsBridge(BOOL, isDebug, setDebug, _is_debug)
   ads->OnAdsSubdivisionTargetingCodeHasChanged();
 }
 
-- (NSString *)automaticallyDetectedSubdivisionTargetingCode
+- (NSString *)autoDetectedSubdivisionTargetingCode
 {
-  return (NSString *)self.prefs[kAutomaticallyDetectedAdsSubdivisionTargetingCodePrefKey] ?: @"";
+  return (NSString *)self.prefs[kAutoDetectedAdsSubdivisionTargetingCodePrefKey] ?: @"";
 }
 
-- (void)setAutomaticallyDetectedSubdivisionTargetingCode:(NSString *)automaticallyDetectedSubdivisionTargetingCode
+- (void)setAutoDetectedSubdivisionTargetingCode:(NSString *)autoDetectedSubdivisionTargetingCode
 {
-  self.prefs[kAutomaticallyDetectedAdsSubdivisionTargetingCodePrefKey] = automaticallyDetectedSubdivisionTargetingCode;
+  self.prefs[kAutoDetectedAdsSubdivisionTargetingCodePrefKey] = autoDetectedSubdivisionTargetingCode;
   [self savePrefs];
 }
 
@@ -893,14 +893,14 @@ BATClassAdsBridge(BOOL, isDebug, setDebug, _is_debug)
   self.subdivisionTargetingCode = [NSString stringWithCString:subdivision_targeting_code.c_str() encoding:[NSString defaultCStringEncoding]];
 }
 
-- (std::string)automaticallyDetectedAdsSubdivisionTargetingCode
+- (std::string)autoDetectedAdsSubdivisionTargetingCode
 {
-  return std::string([self.automaticallyDetectedSubdivisionTargetingCode UTF8String]);
+  return std::string([self.autoDetectedSubdivisionTargetingCode UTF8String]);
 }
 
-- (void)setAutomaticallyDetectedAdsSubdivisionTargetingCode:(const std::string &)subdivision_targeting_code
+- (void)setAutoDetectedAdsSubdivisionTargetingCode:(const std::string &)subdivision_targeting_code
 {
-  self.automaticallyDetectedSubdivisionTargetingCode = [NSString stringWithCString:subdivision_targeting_code.c_str() encoding:[NSString defaultCStringEncoding]];
+  self.autoDetectedSubdivisionTargetingCode = [NSString stringWithCString:subdivision_targeting_code.c_str() encoding:[NSString defaultCStringEncoding]];
 }
 
 - (void)runDBTransaction:(ads::DBTransactionPtr)transaction callback:(ads::RunDBTransactionCallback)callback
@@ -924,6 +924,97 @@ BATClassAdsBridge(BOOL, isDebug, setDebug, _is_debug)
 - (void)onAdRewardsChanged
 {
   // Not needed on iOS because ads do not show unless you are viewing a tab
+}
+
+- (void)setBooleanPref:(const std::string&)path value:(const bool)value
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  self.prefs[key] = [NSNumber numberWithBool:value];
+  [self savePrefs];
+}
+
+- (bool)getBooleanPref:(const std::string&)path
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  if (![self.prefs objectForKey:key]) {
+    return NO;
+  }
+
+  return [self.prefs[key] boolValue];
+}
+
+- (void)setIntegerPref:(const std::string&)path value:(const int)value
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  self.prefs[key] = [NSNumber numberWithInt:value];
+  [self savePrefs];
+}
+
+- (int)getIntegerPref:(const std::string&)path
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  return [self.prefs[key] intValue];
+}
+
+- (void)setDoublePref:(const std::string&)path value:(const double)value
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  self.prefs[key] = [NSNumber numberWithDouble:value];
+  [self savePrefs];
+}
+
+- (double)getDoublePref:(const std::string&)path
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  return [self.prefs[key] doubleValue];
+}
+
+- (void)setStringPref:(const std::string&)path value:(const std::string&)value
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  self.prefs[key] = [NSString stringWithUTF8String:value.c_str()];
+  [self savePrefs];
+}
+
+- (std::string)getStringPref:(const std::string&)path
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  const auto value = (NSString *)self.prefs[key];
+  if (!value) { return ""; }
+  return value.UTF8String;
+}
+
+- (void)setInt64Pref:(const std::string&)path value:(const int64_t)value
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  self.prefs[key] = [NSNumber numberWithLongLong:value];
+  [self savePrefs];
+}
+
+- (int64_t)getInt64Pref:(const std::string&)path
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  return [self.prefs[key] longLongValue];
+}
+
+- (void)setUint64Pref:(const std::string&)path value:(const uint64_t)value
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  self.prefs[key] = [NSNumber numberWithUnsignedLongLong:value];
+  [self savePrefs];
+}
+
+- (uint64_t)getUint64Pref:(const std::string&)path
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  return [self.prefs[key] unsignedLongLongValue];
+}
+
+- (void)clearPref:(const std::string&)path
+{
+  const auto key = [NSString stringWithUTF8String:path.c_str()];
+  [self.prefs removeObjectForKey:key];
+  [self savePrefs];
 }
 
 #pragma mark - User Model Paths

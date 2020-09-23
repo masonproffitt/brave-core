@@ -8,6 +8,7 @@
 #include "base/strings/stringprintf.h"
 #include "bat/ads/internal/ads_impl.h"
 #include "bat/ads/internal/logging.h"
+#include "bat/ads/pref_names.h"
 
 namespace ads {
 
@@ -50,8 +51,8 @@ std::string ConversionFrequencyCap::get_last_message() const {
 
 bool ConversionFrequencyCap::ShouldAllow(
     const CreativeAdInfo& ad) {
-  if (!ads_->get_ads_client()->ShouldAllowAdConversionTracking() &&
-      ad.conversion) {
+  if (!ads_->get_ads_client()->GetBooleanPref(
+      prefs::kShouldAllowAdConversionTracking) && ad.conversion) {
     return false;
   }
 

@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 #include "base/metrics/histogram_macros.h"
-#include "brave/components/brave_ads/common/pref_names.h"
+#include "bat/ads/pref_names.h"
 #include "brave/components/weekly_storage/weekly_storage.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
@@ -31,14 +31,14 @@ void EmitAdViewConfirmationHistogram(uint64_t number_of_confirmations) {
 }  // namespace
 
 void RegisterP2APrefs(PrefRegistrySimple* registry) {
-  registry->RegisterListPref(prefs::kAdViewConfirmationCountPrefName);
+  registry->RegisterListPref(ads::prefs::kAdViewConfirmationCountPrefName);
 }
 
 void RecordEventInWeeklyStorage(
     PrefService* prefs,
     const std::string& pref_name) {
-  if (pref_name == prefs::kAdViewConfirmationCountPrefName) {
-    WeeklyStorage storage(prefs, prefs::kAdViewConfirmationCountPrefName);
+  if (pref_name == ads::prefs::kAdViewConfirmationCountPrefName) {
+    WeeklyStorage storage(prefs, ads::prefs::kAdViewConfirmationCountPrefName);
     storage.AddDelta(1);
     EmitAdViewConfirmationHistogram(storage.GetWeeklySum());
   }

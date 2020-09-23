@@ -14,6 +14,7 @@
 #include "base/strings/stringprintf.h"
 #include "base/memory/weak_ptr.h"
 #include "base/test/bind_test_util.h"
+#include "bat/ads/pref_names.h"
 #include "bat/ledger/ledger.h"
 #include "brave/common/brave_paths.h"
 #include "brave/browser/brave_rewards/rewards_service_factory.h"
@@ -23,7 +24,6 @@
 #include "brave/components/brave_rewards/common/pref_names.h"
 #include "brave/components/brave_ads/browser/ads_service_factory.h"
 #include "brave/components/brave_ads/browser/ads_service_impl.h"
-#include "brave/components/brave_ads/common/pref_names.h"
 #include "brave/components/brave_ads/browser/notification_helper_mock.h"
 #include "brave/components/l10n/browser/locale_helper_mock.h"
 #include "brave/browser/ui/views/brave_actions/brave_actions_container.h"
@@ -506,10 +506,10 @@ IN_PROC_BROWSER_TEST_F(BraveAdsBrowserTest, BraveAdsLocaleIsNotSupported) {
 
 IN_PROC_BROWSER_TEST_F(BraveAdsBrowserTest, BraveAdsLocaleIsNewlySupported) {
   GetPrefs()->SetInteger(
-      brave_ads::prefs::kSupportedCountryCodesLastSchemaVersion, 3);
+      ads::prefs::kSupportedCountryCodesLastSchemaVersion, 3);
 
-  GetPrefs()->SetInteger(brave_ads::prefs::kSupportedCountryCodesSchemaVersion,
-      brave_ads::prefs::kSupportedCountryCodesSchemaVersionNumber);
+  GetPrefs()->SetInteger(ads::prefs::kSupportedCountryCodesSchemaVersion,
+      ads::prefs::kSupportedCountryCodesSchemaVersionNumber);
 
   EXPECT_TRUE(ads_service_->IsNewlySupportedLocale());
 }
@@ -522,21 +522,20 @@ IN_PROC_BROWSER_TEST_F(BraveAdsBrowserTest,
   // schema
 
   GetPrefs()->SetInteger(
-      brave_ads::prefs::kSupportedCountryCodesLastSchemaVersion,
-          brave_ads::prefs::kSupportedCountryCodesSchemaVersionNumber);
+      ads::prefs::kSupportedCountryCodesLastSchemaVersion,
+          ads::prefs::kSupportedCountryCodesSchemaVersionNumber);
 
-  GetPrefs()->SetInteger(brave_ads::prefs::kSupportedCountryCodesSchemaVersion,
-      brave_ads::prefs::kSupportedCountryCodesSchemaVersionNumber);
+  GetPrefs()->SetInteger(ads::prefs::kSupportedCountryCodesSchemaVersion,
+      ads::prefs::kSupportedCountryCodesSchemaVersionNumber);
 
   EXPECT_TRUE(ads_service_->IsNewlySupportedLocale());
 }
 
 IN_PROC_BROWSER_TEST_F(BraveAdsBrowserTest, BraveAdsLocaleIsNotNewlySupported) {
-  GetPrefs()->SetInteger(
-      brave_ads::prefs::kSupportedCountryCodesLastSchemaVersion, 2);
+  GetPrefs()->SetInteger(ads::prefs::kSupportedCountryCodesLastSchemaVersion, 2);
 
-  GetPrefs()->SetInteger(brave_ads::prefs::kSupportedCountryCodesSchemaVersion,
-      brave_ads::prefs::kSupportedCountryCodesSchemaVersionNumber);
+  GetPrefs()->SetInteger(ads::prefs::kSupportedCountryCodesSchemaVersion,
+      ads::prefs::kSupportedCountryCodesSchemaVersionNumber);
 
   EXPECT_FALSE(ads_service_->IsNewlySupportedLocale());
 }

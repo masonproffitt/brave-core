@@ -1,11 +1,11 @@
-/* Copyright (c) 2019 The Brave Authors. All rights reserved.
+/* Copyright (c) 2020 The Brave Authors. All rights reserved.
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "brave/components/brave_ads/common/pref_names.h"
+#include "bat/ads/pref_names.h"
 
-namespace brave_ads {
+namespace ads {
 
 namespace prefs {
 
@@ -35,7 +35,7 @@ const char kAdsSubdivisionTargetingCode[] =
     "brave.brave_ads.ads_subdivision_targeting_code";
 
 // Stores the automatically detected ads subdivision targeting code
-const char kAutomaticallyDetectedAdsSubdivisionTargetingCode[] =
+const char kAutoDetectedAdsSubdivisionTargetingCode[] =
     "brave.brave_ads.automatically_detected_ads_subdivision_targeting_code";
 
 // Stores the maximum amount of ads per day
@@ -74,4 +74,4 @@ const char kAdViewConfirmationCountPrefName[] =
 
 }  // namespace prefs
 
-}  // namespace brave_ads
+}  // namespace ads
