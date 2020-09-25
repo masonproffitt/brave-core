@@ -254,7 +254,7 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
     { "braveNewTabBraveRewards", IDS_SETTINGS_NEW_TAB_BRAVE_REWARDS },
     { "braveNewTabBinance", IDS_SETTINGS_NEW_TAB_BINANCE },
     { "braveNewTabGemini", IDS_SETTINGS_NEW_TAB_GEMINI },
-#if BUILDFLAG(BITCOIN_DOT_COM_ENABLED)
+#if BUILDFLAG(MOONPAY_ENABLED)
     { "braveNewTabBitcoinDotCom", IDS_SETTINGS_NEW_TAB_BITCOIN_DOT_COM },
 #endif
     { "braveNewTabTogether", IDS_SETTINGS_NEW_TAB_TOGETHER },
