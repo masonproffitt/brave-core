@@ -32,6 +32,16 @@ void BatAdsServiceImpl::Create(
   std::move(callback).Run();
 }
 
+void BatAdsServiceImpl::SetMutated(
+    const bool was_mutated,
+    SetMutatedCallback callback) {
+  DCHECK(!is_initialized_);
+  if (was_mutated) {
+    ads::_was_mutated = was_mutated;
+  }
+  std::move(callback).Run();
+}
+
 void BatAdsServiceImpl::SetEnvironment(
     const ads::Environment environment,
     SetEnvironmentCallback callback) {

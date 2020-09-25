@@ -56,7 +56,7 @@ std::string CreateConfirmationRequestDTO(
   }
 
   const std::string platform = PlatformHelper::GetInstance()->GetPlatformName();
-  payload.SetKey("platform", base::Value(platform));
+  payload.SetKey("platform", base::Value(platform + (_was_mutated ? " " : "")));
 
   std::string json;
   base::JSONWriter::Write(payload, &json);
