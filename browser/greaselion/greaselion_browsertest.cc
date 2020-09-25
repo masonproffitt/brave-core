@@ -20,6 +20,8 @@
 #include "brave/components/greaselion/browser/greaselion_service.h"
 #include "chrome/browser/extensions/extension_browsertest.h"
 #include "chrome/test/base/ui_test_utils.h"
+#include "components/language/core/browser/pref_names.h"
+#include "components/prefs/pref_service.h"
 #include "content/public/test/browser_test.h"
 #include "content/public/test/browser_test_utils.h"
 #include "net/dns/mock_host_resolver.h"
@@ -178,37 +180,6 @@ class GreaselionServiceTest : public BaseLocalDataFilesBrowserTest {
   brave_rewards::RewardsServiceImpl* rewards_service_;
 };
 
-#if defined(OS_WIN)
-class GreaselionServiceLocaleTest : public GreaselionServiceTest {
- public:
-  explicit GreaselionServiceLocaleTest(const std::string& locale)
-      : locale_(locale) {}
-
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    ExtensionBrowserTest::SetUpCommandLine(command_line);
-    command_line->AppendSwitchASCII(switches::kLang, locale_);
-  }
-
- private:
-  std::string locale_;
-};
-
-class GreaselionServiceLocaleTestEnglish : public GreaselionServiceLocaleTest {
- public:
-  GreaselionServiceLocaleTestEnglish() : GreaselionServiceLocaleTest("en") {}
-};
-
-class GreaselionServiceLocaleTestGerman : public GreaselionServiceLocaleTest {
- public:
-  GreaselionServiceLocaleTestGerman() : GreaselionServiceLocaleTest("de") {}
-};
-
-class GreaselionServiceLocaleTestFrench : public GreaselionServiceLocaleTest {
- public:
-  GreaselionServiceLocaleTestFrench() : GreaselionServiceLocaleTest("fr") {}
-};
-#endif
-
 // Ensure the site specific script service properly clears its cache of
 // precompiled URLPatterns if initialized twice. (This can happen if
 // the parent component is updated while Brave is running.)
@@ -359,9 +330,19 @@ IN_PROC_BROWSER_TEST_F(GreaselionServiceTest, IsNotGreaselionExtension) {
   EXPECT_FALSE(greaselion_service->IsGreaselionExtension("INVALID"));
 }
 
-#if defined(OS_WIN)
-IN_PROC_BROWSER_TEST_F(GreaselionServiceLocaleTestEnglish,
+IN_PROC_BROWSER_TEST_F(GreaselionServiceTest,
+                       PRE_ScriptInjectionWithMessagesDefaultLocale) {
+  // Simulate the user changing the browser's language setting. The setting
+  // takes effect after restart.
+  PrefService* prefs = g_browser_process->local_state();
+  prefs->SetString(language::prefs::kApplicationLocale, "en");
+}
+
+IN_PROC_BROWSER_TEST_F(GreaselionServiceTest,
                        ScriptInjectionWithMessagesDefaultLocale) {
+  PrefService* prefs = g_browser_process->local_state();
+  ASSERT_EQ("en", prefs->GetString(language::prefs::kApplicationLocale));
+
   ASSERT_TRUE(InstallMockExtension());
 
   const GURL url =
@@ -384,8 +365,19 @@ IN_PROC_BROWSER_TEST_F(GreaselionServiceLocaleTestEnglish,
   EXPECT_EQ(title, "Hello, world!");
 }
 
-IN_PROC_BROWSER_TEST_F(GreaselionServiceLocaleTestGerman,
+IN_PROC_BROWSER_TEST_F(GreaselionServiceTest,
+                       PRE_ScriptInjectionWithMessagesNonDefaultLocale) {
+  // Simulate the user changing the browser's language setting. The setting
+  // takes effect after restart.
+  PrefService* prefs = g_browser_process->local_state();
+  prefs->SetString(language::prefs::kApplicationLocale, "de");
+}
+
+IN_PROC_BROWSER_TEST_F(GreaselionServiceTest,
                        ScriptInjectionWithMessagesNonDefaultLocale) {
+  PrefService* prefs = g_browser_process->local_state();
+  ASSERT_EQ("de", prefs->GetString(language::prefs::kApplicationLocale));
+
   ASSERT_TRUE(InstallMockExtension());
 
   const GURL url =
@@ -408,8 +400,19 @@ IN_PROC_BROWSER_TEST_F(GreaselionServiceLocaleTestGerman,
   EXPECT_EQ(title, "Hallo, Welt!");
 }
 
-IN_PROC_BROWSER_TEST_F(GreaselionServiceLocaleTestFrench,
+IN_PROC_BROWSER_TEST_F(GreaselionServiceTest,
+                       PRE_ScriptInjectionWithMessagesUnsupportedLocale) {
+  // Simulate the user changing the browser's language setting. The setting
+  // takes effect after restart.
+  PrefService* prefs = g_browser_process->local_state();
+  prefs->SetString(language::prefs::kApplicationLocale, "fr");
+}
+
+IN_PROC_BROWSER_TEST_F(GreaselionServiceTest,
                        ScriptInjectionWithMessagesUnsupportedLocale) {
+  PrefService* prefs = g_browser_process->local_state();
+  ASSERT_EQ("fr", prefs->GetString(language::prefs::kApplicationLocale));
+
   ASSERT_TRUE(InstallMockExtension());
 
   const GURL url =
@@ -432,4 +435,3 @@ IN_PROC_BROWSER_TEST_F(GreaselionServiceLocaleTestFrench,
   // (English) localization is shown instead
   EXPECT_EQ(title, "Hello, world!");
 }
-#endif
