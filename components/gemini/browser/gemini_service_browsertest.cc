@@ -241,8 +241,7 @@ class GeminiAPIBrowserTest : public InProcessBrowserTest {
     wait_for_request_->Run();
   }
 
-  void OnGetAccountBalances(const std::map<std::string,
-                                           std::string>& balances,
+  void OnGetAccountBalances(GeminiAccountBalances& balances,
       bool success) {
     if (wait_for_request_) {
       wait_for_request_->Quit();
@@ -252,8 +251,7 @@ class GeminiAPIBrowserTest : public InProcessBrowserTest {
   }
 
   void WaitForGetAccountBalances(
-      const std::map<std::string,
-                     std::string>& expected_balances,
+      const GeminiAccountBalances& expected_balances,
       bool expected_success) {
     if (wait_for_request_) {
       return;
@@ -311,8 +309,7 @@ class GeminiAPIBrowserTest : public InProcessBrowserTest {
   std::string expected_total_fee_;
   std::string expected_quantity_;
   std::string expected_address_;
-  std::map<std::string, std::string> expected_balances_;
-  std::map<std::string, std::string> expected_networks_;
+  GeminiAccountBalances expected_balances_;
 
   std::unique_ptr<base::RunLoop> wait_for_request_;
   std::unique_ptr<net::EmbeddedTestServer> https_server_;
@@ -474,7 +471,7 @@ IN_PROC_BROWSER_TEST_F(GeminiAPIBrowserTest, GetAccountBalances) {
           &GeminiAPIBrowserTest::OnGetAccountBalances,
           base::Unretained(this))));
   WaitForGetAccountBalances(
-      std::map<std::string, std::string> {
+      GeminiAccountBalances {
           {
             {"BTC", "1129.10517279"},
             {"USD", "14481.62"},
@@ -491,8 +488,7 @@ IN_PROC_BROWSER_TEST_F(GeminiAPIBrowserTest, GetAccountBalancesUnauthorized) {
       base::BindOnce(
           &GeminiAPIBrowserTest::OnGetAccountBalances,
           base::Unretained(this))));
-  WaitForGetAccountBalances(
-      std::map<std::string, std::string>(), true);
+  WaitForGetAccountBalances(GeminiAccountBalances(), true);
 }
 
 IN_PROC_BROWSER_TEST_F(GeminiAPIBrowserTest, GetAccountBalancesServerError) {
@@ -503,8 +499,7 @@ IN_PROC_BROWSER_TEST_F(GeminiAPIBrowserTest, GetAccountBalancesServerError) {
       base::BindOnce(
           &GeminiAPIBrowserTest::OnGetAccountBalances,
           base::Unretained(this))));
-  WaitForGetAccountBalances(
-      std::map<std::string, std::string>(), false);
+  WaitForGetAccountBalances(GeminiAccountBalances(), false);
 }
 
 IN_PROC_BROWSER_TEST_F(GeminiAPIBrowserTest, GetDepositInfo) {
